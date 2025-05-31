@@ -1,119 +1,198 @@
 package tad.listasEncadeadas;
 
+import java.lang.reflect.Array;
+
 public class ListaDuplamenteEncadeadaImpl<T extends Comparable<T>> implements ListaDuplamenteEncadeadaIF<T> {
-	
-	//TODO: implementar o nó cabeça
-	//TODO: implementar o nó cauda 
-	//TODO: implementar as sentinelas
-	
-	NodoListaDuplamenteEncadeada<T> cabeca = null; // Estratégia usando marcação sentinela
-	NodoListaDuplamenteEncadeada<T> cauda = null;// Estratégia usando marcação sentinela
-	
-	public ListaDuplamenteEncadeadaImpl() {// Estratégia usando marcação sentinela
-		cabeca = new NodoListaDuplamenteEncadeada<T>();
-		cauda = new NodoListaDuplamenteEncadeada<T>();
-		cabeca.setProximo(cauda);
-		
-		// lista circular
-		cabeca.setAnterior(cauda);
-		cauda.setAnterior(cabeca);
-		
-	}
 
-	@Override
-	public boolean isEmpty() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    private NodoListaDuplamenteEncadeada<T> cabeca;
+    private NodoListaDuplamenteEncadeada<T> cauda;
 
-	@Override
-	public int size() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    public ListaDuplamenteEncadeadaImpl() {
+        cabeca = new NodoListaDuplamenteEncadeada<>();
+        cauda = new NodoListaDuplamenteEncadeada<>();
+        cabeca.setProximo(cauda);
+        cabeca.setAnterior(null);
+        cauda.setAnterior(cabeca);
+        cauda.setProximo(null);
+    }
 
-	@Override
-	public NodoListaDuplamenteEncadeada<T> search(T chave) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public boolean isEmpty() {
+        return cabeca.getProximo() == cauda;
+    }
 
-	@Override
-	public void insert(T chave) {
-		//1. Craiar o novo registro
-		NodoListaDuplamenteEncadeada<T> novoNo = new NodoListaDuplamenteEncadeada<T>(chave);
-		
-		//2. Inserir o novo nó na lista
-		
-		novoNo.setProximo(cabeca.getProximo());
-		((NodoListaDuplamenteEncadeada<T>) cabeca.getProximo()).setAnterior(novoNo);
-		novoNo.setAnterior(cabeca);
-		cabeca.setProximo(novoNo);
-			
-		
-	}
+    @Override
+    public int size() {
+        int count = 0;
+        NodoListaDuplamenteEncadeada<T> atual = (NodoListaDuplamenteEncadeada<T>) cabeca.getProximo();
+        while (atual != cauda) {
+            count++;
+            atual = (NodoListaDuplamenteEncadeada<T>) atual.getProximo();
+        }
+        return count;
+    }
 
-	@Override
-	public NodoListaEncadeada<T> remove(T chave) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public NodoListaDuplamenteEncadeada<T> search(T chave) {
+        if (chave == null) return null;
+        NodoListaDuplamenteEncadeada<T> atual = (NodoListaDuplamenteEncadeada<T>) cabeca.getProximo();
+        while (atual != cauda) {
+            if (chave.equals(atual.getChave())) {
+                return atual;
+            }
+            atual = (NodoListaDuplamenteEncadeada<T>) atual.getProximo();
+        }
+        return null;
+    }
 
-	@Override
-	public String imprimeEmOrdem() {
-		// TODO Auto-generated method stub
-		
-		return null;
-	}
+    @Override
+    public void insert(T chave) {
+        if (chave == null) throw new IllegalArgumentException("Elemento não pode ser null");
 
-	@Override
-	public String imprimeInverso() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+        NodoListaDuplamenteEncadeada<T> novo = new NodoListaDuplamenteEncadeada<>(chave);
+        NodoListaDuplamenteEncadeada<T> ultimo = cauda.getAnterior();
 
-	@Override
-	public NodoListaEncadeada<T> sucessor(T chave) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+        novo.setProximo(cauda);
+        novo.setAnterior(ultimo);
+        ultimo.setProximo(novo);
+        cauda.setAnterior(novo);
+    }
 
-	@Override
-	public NodoListaEncadeada<T> predecessor(T chave) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public NodoListaDuplamenteEncadeada<T> remove(T chave) {
+        if (isEmpty() || chave == null) return null;
+        NodoListaDuplamenteEncadeada<T> atual = search(chave);
+        if (atual != null) {
+            atual.getAnterior().setProximo(atual.getProximo());
+            ((NodoListaDuplamenteEncadeada<T>) atual.getProximo()).setAnterior(atual.getAnterior());
+            atual.setProximo(null);
+            atual.setAnterior(null);
+            return atual;
+        }
+        return null;
+    }
 
-	@Override
-	public T[] toArray(Class<T> clazz) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String imprimeEmOrdem() {
+        StringBuilder sb = new StringBuilder();
+        NodoListaDuplamenteEncadeada<T> atual = (NodoListaDuplamenteEncadeada<T>) cabeca.getProximo();
+        while (atual != cauda) {
+            sb.append(atual.getChave());
+            if (atual.getProximo() != cauda) {
+                sb.append(", ");
+            }
+            atual = (NodoListaDuplamenteEncadeada<T>) atual.getProximo();
+        }
+        return sb.toString();
+    }
 
-	@Override
-	public void inserePrimeiro(T elemento) {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public String imprimeInverso() {
+        StringBuilder sb = new StringBuilder();
+        NodoListaDuplamenteEncadeada<T> atual = cauda.getAnterior();
+        while (atual != cabeca) {
+            sb.append(atual.getChave());
+            if (atual.getAnterior() != cabeca) {
+                sb.append(", ");
+            }
+            atual = atual.getAnterior();
+        }
+        return sb.toString();
+    }
 
-	@Override
-	public NodoListaDuplamenteEncadeada<T> removeUltimo() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public NodoListaDuplamenteEncadeada<T> sucessor(T chave) {
+        NodoListaDuplamenteEncadeada<T> atual = search(chave);
+        if (atual != null && atual.getProximo() != cauda) {
+            return (NodoListaDuplamenteEncadeada<T>) atual.getProximo();
+        }
+        return null;
+    }
 
-	@Override
-	public NodoListaDuplamenteEncadeada<T> removePrimeiro() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public NodoListaDuplamenteEncadeada<T> predecessor(T chave) {
+        NodoListaDuplamenteEncadeada<T> atual = search(chave);
+        if (atual != null && atual.getAnterior() != cabeca) {
+            return atual.getAnterior();
+        }
+        return null;
+    }
 
-	@Override
-	public void insert(T chave, int index) {
-		throw new UnsupportedOperationException("Precisa implementar!");
-		
-	}
+    @Override
+    public T[] toArray(Class<T> clazz) {
+        int size = size();
+        if (size == 0) return null;
+        @SuppressWarnings("unchecked")
+        T[] array = (T[]) Array.newInstance(clazz, size);
+        NodoListaDuplamenteEncadeada<T> atual = (NodoListaDuplamenteEncadeada<T>) cabeca.getProximo();
+        int i = 0;
+        while (atual != cauda) {
+            array[i++] = atual.getChave();
+            atual = (NodoListaDuplamenteEncadeada<T>) atual.getProximo();
+        }
+        return array;
+    }
 
-	
+    @Override
+    public void inserePrimeiro(T elemento) {
+        if (elemento == null) throw new IllegalArgumentException("Elemento não pode ser null");
+        NodoListaDuplamenteEncadeada<T> novo = new NodoListaDuplamenteEncadeada<>(elemento);
+        NodoListaDuplamenteEncadeada<T> primeiro = (NodoListaDuplamenteEncadeada<T>) cabeca.getProximo();
 
+        novo.setProximo(primeiro);
+        novo.setAnterior(cabeca);
+        cabeca.setProximo(novo);
+        primeiro.setAnterior(novo);
+    }
+
+    @Override
+    public NodoListaDuplamenteEncadeada<T> removeUltimo() {
+        if (isEmpty()) return null;
+        NodoListaDuplamenteEncadeada<T> ultimo = cauda.getAnterior();
+        NodoListaDuplamenteEncadeada<T> penultimo = ultimo.getAnterior();
+
+        penultimo.setProximo(cauda);
+        cauda.setAnterior(penultimo);
+
+        ultimo.setAnterior(null);
+        ultimo.setProximo(null);
+
+        return ultimo;
+    }
+
+    @Override
+    public NodoListaDuplamenteEncadeada<T> removePrimeiro() {
+        if (isEmpty()) return null;
+        NodoListaDuplamenteEncadeada<T> primeiro = (NodoListaDuplamenteEncadeada<T>) cabeca.getProximo();
+        NodoListaDuplamenteEncadeada<T> segundo = (NodoListaDuplamenteEncadeada<T>) primeiro.getProximo();
+
+        cabeca.setProximo(segundo);
+        segundo.setAnterior(cabeca);
+
+        primeiro.setAnterior(null);
+        primeiro.setProximo(null);
+
+        return primeiro;
+    }
+
+    @Override
+    public void insert(T chave, int index) {
+        if (chave == null) throw new IllegalArgumentException("Elemento não pode ser null");
+        if (index < 0 || index > size()) {
+            throw new IndexOutOfBoundsException("Índice inválido: " + index);
+        }
+
+        NodoListaDuplamenteEncadeada<T> atual = cabeca;
+        for (int i = 0; i < index; i++) {
+            atual = (NodoListaDuplamenteEncadeada<T>) atual.getProximo();
+        }
+
+        NodoListaDuplamenteEncadeada<T> proximo = (NodoListaDuplamenteEncadeada<T>) atual.getProximo();
+        NodoListaDuplamenteEncadeada<T> novo = new NodoListaDuplamenteEncadeada<>(chave);
+
+        novo.setAnterior(atual);
+        novo.setProximo(proximo);
+        atual.setProximo(novo);
+        proximo.setAnterior(novo);
+    }
 }

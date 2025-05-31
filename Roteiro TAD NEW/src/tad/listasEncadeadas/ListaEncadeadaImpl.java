@@ -1,112 +1,179 @@
 package tad.listasEncadeadas;
 
-public class ListaEncadeadaImpl<T extends Comparable<T>> implements ListaEncadeadaIF<T>{
-	
-//	NodoListaEncadeada<T> cabeca = null;
-	
-	NodoListaEncadeada<T> cabeca = null; // Estratégia usando marcação sentinela
-	NodoListaEncadeada<T> cauda = null;// Estratégia usando marcação sentinela
-	
-	public ListaEncadeadaImpl() {// Estratégia usando marcação sentinela
-		cabeca = new NodoListaEncadeada<T>();
-		cauda = new NodoListaEncadeada<T>();
-		cabeca.setProximo(cauda);
-	}
-	
+import java.lang.reflect.Array;
 
-	@Override
-	public boolean isEmpty() {
-		throw new UnsupportedOperationException("Precisa implementar!");
-		
-	}
+public class ListaEncadeadaImpl<T extends Comparable<T>> implements ListaEncadeadaIF<T> {
 
-	@Override
-	public int size() {
-		throw new UnsupportedOperationException("Precisa implementar!");
-	}
+    private NodoListaEncadeada<T> cabeca = null;
 
-	@Override
-	public NodoListaEncadeada<T> search(T chave) {
-		throw new UnsupportedOperationException("Precisa implementar!");
-	}
+    public ListaEncadeadaImpl() {
+        cabeca = null;
+    }
 
-	@Override
-	public void insert(T chave) {
-//		throw new UnsupportedOperationException("Precisa implementar!");
-		
-		//1. Craiar o novo registro
-		NodoListaEncadeada<T> novoNo = new NodoListaEncadeada<T>(chave);
-		
-		//2. Inserir o novo nó na lista
-		
-		// se a lista estiver vazia**
-		if (cabeca.getProximo().equals(cauda)) {
-			cabeca = novoNo;
-		} else { // lista não está vazia
-			novoNo.setProximo(cabeca.getProximo());
-			cabeca.setProximo(novoNo);
-		}
-		
-	}
+    @Override
+    public boolean isEmpty() {
+        return cabeca == null;
+    }
 
-	@Override
-	public NodoListaEncadeada<T> remove(T chave) {
-		throw new UnsupportedOperationException("Precisa implementar!");
-		
-	}
+    @Override
+    public int size() {
+        int count = 0;
+        NodoListaEncadeada<T> atual = cabeca;
+        while (atual != null) {
+            count++;
+            atual = atual.getProximo();
+        }
+        return count;
+    }
 
-	@Override
-	public T[] toArray(Class<T> clazz) {
-		// Criar um array usando a classe utilitária conversor
-//		Conversor<T> c = new Conversor<T>();
-//		T[] meuArray = c.gerarArray(clazz, 10);
-		throw new UnsupportedOperationException("Precisa implementar!");
-	}
+    @Override
+    public NodoListaEncadeada<T> search(T chave) {
+        NodoListaEncadeada<T> atual = cabeca;
+        while (atual != null) {
+            if (atual.getChave().equals(chave)) {
+                return atual;
+            }
+            atual = atual.getProximo();
+        }
+        return null;
+    }
 
-	@Override
-	public String imprimeEmOrdem() {
-//		throw new UnsupportedOperationException("Precisa implementar!");
-		String valores = "";
-		NodoListaEncadeada<T> corrente = cabeca.getProximo();
-		
-		while (!corrente.equals(cauda)) {
-			valores += corrente.getChave() + ", ";
-		}
-		
-		return valores.substring(0, valores.length()-2);
-		
-	}
+    @Override
+    public void insert(T chave) {
+        if (chave == null) throw new IllegalArgumentException("Elemento não pode ser null");
+        NodoListaEncadeada<T> novo = new NodoListaEncadeada<>(chave);
+        if (cabeca == null) {
+            cabeca = novo;
+        } else {
+            NodoListaEncadeada<T> atual = cabeca;
+            while (atual.getProximo() != null) {
+                atual = atual.getProximo();
+            }
+            atual.setProximo(novo);
+        }
+    }
 
-	@Override
-	public String imprimeInverso() {
-//		throw new UnsupportedOperationException("Precisa implementar!");
-		
-		String valores = "";
-		NodoListaEncadeada<T> corrente = cabeca.getProximo();
-		NodoListaEncadeada<T> anterior = cabeca;
-		
-		while (!corrente.equals(cauda)) {
-			valores += corrente.getChave() + ", ";
-		}
-		
-		
-		return valores.substring(0, valores.length()-2);
-		
-	}
+    @Override
+    public NodoListaEncadeada<T> remove(T chave) {
+        if (cabeca == null) return null;
+        NodoListaEncadeada<T> atual = cabeca;
+        NodoListaEncadeada<T> anterior = null;
+        while (atual != null) {
+            if (atual.getChave().equals(chave)) {
+                if (anterior == null) {
+                    cabeca = atual.getProximo();
+                } else {
+                    anterior.setProximo(atual.getProximo());
+                }
+                atual.setProximo(null);
+                return atual;
+            }
+            anterior = atual;
+            atual = atual.getProximo();
+        }
+        return null;
+    }
 
-	@Override
-	public NodoListaEncadeada<T> sucessor(T chave) {
-		throw new UnsupportedOperationException("Precisa implementar!");
-	}
+    @Override
+    public T[] toArray(Class<T> clazz) {
+        int tam = size();
+        if (tam == 0) return null;
+        @SuppressWarnings("unchecked")
+        T[] array = (T[]) Array.newInstance(clazz, tam);
+        NodoListaEncadeada<T> atual = cabeca;
+        int i = 0;
+        while (atual != null) {
+            array[i++] = atual.getChave();
+            atual = atual.getProximo();
+        }
+        return array;
+    }
 
-	@Override
-	public NodoListaEncadeada<T> predecessor(T chave) {
-		throw new UnsupportedOperationException("Precisa implementar!");
-	}
+    @Override
+    public String imprimeEmOrdem() {
+        StringBuilder sb = new StringBuilder();
+        NodoListaEncadeada<T> atual = cabeca;
+        while (atual != null) {
+            sb.append(atual.getChave());
+            if (atual.getProximo() != null) sb.append(", ");
+            atual = atual.getProximo();
+        }
+        return sb.toString();
+    }
 
-	@Override
-	public void insert(T chave, int index) {
-		throw new UnsupportedOperationException("Precisa implementar!");
-	}
+    @Override
+    public String imprimeInverso() {
+        return imprimeInversoRec(cabeca).toString();
+    }
 
+    private StringBuilder imprimeInversoRec(NodoListaEncadeada<T> no) {
+        if (no == null) return new StringBuilder();
+        StringBuilder sb = imprimeInversoRec(no.getProximo());
+        if (sb.length() > 0) sb.append(", ");
+        sb.append(no.getChave());
+        return sb;
+    }
+
+    @Override
+    public NodoListaEncadeada<T> sucessor(T chave) {
+        NodoListaEncadeada<T> atual = cabeca;
+        while (atual != null && atual.getProximo() != null) {
+            if (atual.getChave().equals(chave)) {
+                return atual.getProximo();
+            }
+            atual = atual.getProximo();
+        }
+        return null;
+    }
+
+    @Override
+    public NodoListaEncadeada<T> predecessor(T chave) {
+        NodoListaEncadeada<T> atual = cabeca;
+        NodoListaEncadeada<T> anterior = null;
+        while (atual != null) {
+            if (atual.getChave().equals(chave)) {
+                return anterior;
+            }
+            anterior = atual;
+            atual = atual.getProximo();
+        }
+        return null;
+    }
+
+    @Override
+    public void insert(T chave, int index) {
+        if (chave == null) throw new IllegalArgumentException("Elemento não pode ser null");
+        if (index < 0) throw new IndexOutOfBoundsException();
+        NodoListaEncadeada<T> novo = new NodoListaEncadeada<>(chave);
+        if (index == 0) {
+            novo.setProximo(cabeca);
+            cabeca = novo;
+            return;
+        }
+        NodoListaEncadeada<T> atual = cabeca;
+        int i = 0;
+        while (atual != null && i < index - 1) {
+            atual = atual.getProximo();
+            i++;
+        }
+        if (atual == null) throw new IndexOutOfBoundsException();
+        novo.setProximo(atual.getProximo());
+        atual.setProximo(novo);
+    }
+
+    // Métodos auxiliares para fila
+    // Retorna o primeiro elemento da lista (cabeça)
+    public NodoListaEncadeada<T> verificarCabeca() {
+        return cabeca;
+    }
+
+    // Retorna o último elemento da lista (cauda)
+    public NodoListaEncadeada<T> verificarCauda() {
+        if (cabeca == null) return null;
+        NodoListaEncadeada<T> atual = cabeca;
+        while (atual.getProximo() != null) {
+            atual = atual.getProximo();
+        }
+        return atual;
+    }
 }
